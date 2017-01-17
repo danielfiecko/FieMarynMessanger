@@ -1,0 +1,139 @@
+————————USERS TABLE———————————
+use fiemarynmessanger;
+CREATE TABLE users (
+user_id int NOT NULL PRIMARY KEY AUTO_INCREMENT ,
+firstname  varchar(25) NOT NULL,
+secondname  varchar(25) NOT NULL,
+nickname varchar(25) NOT NULL UNIQUE,
+password varchar(50) NOT NULL
+);
+
+INSERT INTO users(firstname,secondname,nickname,password) VALUES ('Daniel','fierev','fierev12345','fierev12345');
+INSERT INTO users(firstname,secondname,nickname,password) VALUES ('Marcin','Nowak','nowak12345','nowak12345');
+INSERT INTO users(firstname,secondname,nickname,password) VALUES ('Jan','Smith','smith12345','smith12345');
+
+
+
+———————CONVERSATION TABLE————————————
+use fiemarynmessanger;
+CREATE TABLE conversation
+(
+c_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+user_one int(11) NOT NULL,
+user_two int(11) NOT NULL,
+time int(11) DEFAULT NULL,
+FOREIGN KEY(user_one) REFERENCES users(user_id) ON DELETE CASCADE,
+FOREIGN KEY(user_two) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+INSERT INTO conversation(user_one,user_two) VALUES (1,2);
+INSERT INTO conversation(user_one,user_two) VALUES (2,3);
+
+
+
+
+—————————CONVERSATION_REPLY TABLE——————————
+CREATE TABLE conversation_reply (
+cr_id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+reply varchar(255),
+user_id_fk int(11) NOT NULL,
+time int(11) DEFAULT NULL,
+c_id_fk int(11) NOT NULL,
+FOREIGN KEY (user_id_fk) REFERENCES users(user_id) ON DELETE CASCADE,
+FOREIGN KEY (c_id_fk) REFERENCES conversation(c_id) ON DELETE CASCADE
+);
+
+INSERT INTO conversation_reply(user_id_fk,reply,c_id_fk) VALUES (2,'Hello,how are you?',4);
+INSERT INTO conversation_reply(user_id_fk,reply,c_id_fk) VALUES (3,'Hi, I am good thanks',4);
+INSERT INTO conversation_reply(user_id_fk,reply,c_id_fk) VALUES (1,'yo nygga whats up? ;)',3);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+——— DISPLAY ———
+use fiemarynmessanger;
+SELECT U.user_id, U.nickname, C.c_id, R.user_id_fk AS message_wrote_by, R.reply
+FROM users U,conversation C, conversation_reply R
+WHERE (
+CASE
+WHEN C.user_one = '2'
+THEN C.user_two = U.user_id
+WHEN C.user_two = '2'
+THEN C.user_one= U.user_id
+END
+)
+AND
+C.c_id=R.c_id_fk
+AND
+U.user_id='3'
+AND
+(C.user_one='2' OR C.user_two ='2') order by C.c_id DESC
+
+
+
+
+———————EXAMPLE————————————
+user_id='3' to przykładowo nasz zalogowany uzytkownik
+user_one lub user_two w zależności od tego kto rozpoczał chat to ID naszego kontaktu z którym chcemy zobaczyć wspolne wiadomosci
+
+
+SELECT U.user_id, U.nickname, C.c_id, R.user_id_fk AS message_wrote_by, R.reply
+FROM users U,conversation C, conversation_reply R
+WHERE (
+CASE
+WHEN C.user_one = '2'
+THEN C.user_two = U.user_id
+WHEN C.user_two = '2'
+THEN C.user_one= U.user_id
+END
+)
+AND
+C.c_id=R.c_id_fk
+AND
+U.user_id='1'
+AND
+(C.user_one='2' OR C.user_two ='2') order by C.c_id DESC
+
+
+
+------------DISPLAY CONVERSATION_ID IF EXISTS-------------------
+use fiemarynmessanger;
+SELECT U.user_id, C.c_id
+FROM users U,conversation C
+WHERE (
+CASE
+WHEN C.user_one = '1'
+THEN C.user_two = U.user_id
+WHEN C.user_two = '1'
+THEN C.user_one= U.user_id
+END
+)
+AND
+U.user_id='3'
+AND
+(C.user_one='1' OR C.user_two ='1')
